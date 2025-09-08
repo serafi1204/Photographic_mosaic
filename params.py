@@ -1,0 +1,22 @@
+import cv2
+import utile.snr as snr
+
+FRAME_SIZE = (54, 96) # (W, H)
+SAMPLE_GRID_SIZE = (27, 48)
+TARGET_GRID = (60, 60)
+
+TARGET_SAMPLE_SIZE = (SAMPLE_GRID_SIZE[0]*TARGET_GRID[0], SAMPLE_GRID_SIZE[1]*TARGET_GRID[1])
+TARGET_SIZE = (FRAME_SIZE[0]*TARGET_GRID[0], FRAME_SIZE[1]*TARGET_GRID[1])
+
+MODE = "SSIM"
+if (MODE == "SNR"):
+    COMPARE_FORMAT = cv2.COLOR_BGR2RGB
+    COMPARE_FUNCTION = snr.SNR
+elif (MODE == "deltaE"):
+    COMPARE_FORMAT = cv2.COLOR_BGR2RGB
+    COMPARE_FUNCTION = snr.color_difference
+elif (MODE == "SSIM"):
+    COMPARE_FORMAT = cv2.COLOR_BGR2RGB
+    COMPARE_FUNCTION = snr.SSIM
+else:
+    raise NameError("Wrong mode.")
