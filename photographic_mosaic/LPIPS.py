@@ -15,8 +15,8 @@ def LPIPS():
         raise ValueError(f"ref and source must have the same shape(ref:{img1.shape}/source:{img2s[0].shape})")
 
       #img1 = transform(img1)
-      img2_batch = img2s.to(device)#torch.stack(img2s).to(device) 
-      img1_batch = img1.expand(img2_batch.shape[0], -1, -1, -1).to(device)
+      img2_batch = img2s.to(torch.float32).to(device)
+      img1_batch = img1.expand(img2_batch.shape[0], -1, -1, -1).to(torch.float32).to(device)
 
       with torch.no_grad():
         lpips_score = lpips_model(img1_batch, img2_batch).squeeze()
