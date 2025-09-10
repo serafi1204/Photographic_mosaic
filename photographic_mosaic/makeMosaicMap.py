@@ -55,7 +55,7 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
             index.pop(best)
             data = torch.cat((data[:best], data[best+1:]))
         
-        clear()
+        clear_cmd()
         print(log)
         print(f"reuse: {reuse}")
         print(f"{(n+1)/len(order)*100:.1f}% ({n+1}/{len(order)})")
