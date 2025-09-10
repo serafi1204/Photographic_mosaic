@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from time import time
 
 from .resize import resize
 from .configuration import * 
@@ -23,7 +24,7 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
         return data, label, index
 
     data, label, index = reset()
-    log = f"# {len(index)} memories loaded."
+    print(f"{len(index)} memories loaded.")
 
     mosaic_map = np.zeros(resolution)
     label_map = np.zeros(resolution)
@@ -34,6 +35,8 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
     # make mosaic map
     order = []
     reuse = 0
+    st = time()
+    
     for x in range(resolution[0]):
         for y in range(resolution[1]):
             order.append((x, y))
@@ -55,9 +58,8 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
             index.pop(best)
             data = torch.cat((data[:best], data[best+1:]))
         
-        clear_cmd()
-        print(log)
-        print(f"reuse: {reuse}")
-        print(f"{(n+1)/len(order)*100:.1f}% ({n+1}/{len(order)})")
+        progress = f"{(n+1)/len(order)*100:.1f}% ({n+1}/{len(order)}) | reuse: {reuse}"
+        print('\r' + progress, end='', flush=True)
     
+    print(f"\nElapsed time: {(time()-st)/60:.1f}min")
     return mosaic_map, label_map, loss_map

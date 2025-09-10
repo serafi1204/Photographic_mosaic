@@ -1,4 +1,6 @@
 import numpy as np
+from time import time
+
 from .configuration import *
 from .resize import resize
 
@@ -19,7 +21,11 @@ def assamble(mosaic_map, source):
             x = i*source_h
             y = j*source_w
             res[x:x+source_h, y:y+source_w] = (source[int(mosaic_map[i, j])]*256+128)
+
+            progress = f"{(i*mosaic_h*j)/mosaic_h*mosaic_w*100:.1f}% ({i*mosaic_h*j}/{mosaic_h*mosaic_w})"
+            print('\r' + progress, end='', flush=True)
     
+    print()
     return res.astype("uint8")
 
 
