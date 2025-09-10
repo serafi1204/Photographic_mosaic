@@ -23,7 +23,7 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
         return data, label, index
 
     data, label, index = reset()
-    log = "# {len(index)} memories loaded."
+    log = f"# {len(index)} memories loaded."
 
     mosaic_map = np.zeros(resolution)
     label_map = np.zeros(resolution)
