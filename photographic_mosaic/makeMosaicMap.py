@@ -24,13 +24,15 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
         return data, label, index
 
     data, label, index = reset()
+    model = LPIPS()
+
+    clear_cmd()
     print(f"♠♥♣◆ {len(index)} memories loaded ◆♣♥♠")
 
     mosaic_map = np.zeros(resolution)
     label_map = np.zeros(resolution)
     loss_map = np.zeros(resolution)
 
-    model = LPIPS()
 
     # make mosaic map
     order = []
