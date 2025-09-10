@@ -24,7 +24,7 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
         return data, label, index
 
     data, label, index = reset()
-    print(f"{len(index)} memories loaded.")
+    print(f"♠♥♣◆ {len(index)} memories loaded ◆♣♥♠")
 
     mosaic_map = np.zeros(resolution)
     label_map = np.zeros(resolution)
@@ -34,7 +34,7 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
 
     # make mosaic map
     order = []
-    reuse = 0
+    reuse_cnt = 0
     st = time()
     
     for x in range(resolution[0]):
@@ -44,7 +44,7 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
     for n, (x, y) in enumerate(order):
         if (len(index) == 0):
             data, label, index = reset()
-            reuse += 1
+            reuse_cnt += 1
     
         partial_target = target[:, y:y+dy, x:x+dx]
         best, loss = model(partial_target, data)
@@ -58,7 +58,7 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
             index.pop(best)
             data = torch.cat((data[:best], data[best+1:]))
         
-        progress = f"{(n+1)/len(order)*100:.1f}% ({n+1}/{len(order)}) | reuse: {reuse}"
+        progress = f"{(n+1)/len(order)*100:.1f}% ({n+1}/{len(order)}) | reuse: {reuse_cnt}"
         print('\r' + progress, end='', flush=True)
     
     print(f"\nElapsed time: {(time()-st)/60:.1f}min")
