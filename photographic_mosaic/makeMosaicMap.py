@@ -2,7 +2,7 @@ import numpy as np
 import torch
 
 from .resize import resize
-from .configuration import *
+from .configuration import * 
 from .LPIPS import LPIPS
 from .spiral_from_center import spiral_from_center
 
@@ -20,11 +20,10 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
         label = np_loaded['label']
         index = [i for i in range(label.shape[0])]
 
-        print(f"# {len(index)} memories with hi-blueming loaded.")
-
         return data, label, index
 
     data, label, index = reset()
+    log = "# {len(index)} memories loaded."
 
     mosaic_map = np.zeros(resolution)
     label_map = np.zeros(resolution)
@@ -40,6 +39,10 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
             order.append((x, y))
 
     for n, (x, y) in enumerate(order):
+        if (len(index) == 0):
+            data, label, index = reset()
+            reuse += 1
+    
         partial_target = target[:, y:y+dy, x:x+dx]
         best, loss = model(partial_target, data)
         
@@ -52,11 +55,9 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
             index.pop(best)
             data = torch.cat((data[:best], data[best+1:]))
         
-        print(f"{(n+1)/len(order)*100:.1f}% ({n+1}/{len(order)}) | reuse: {reuse}")
-        
-        if (len(index) == 0):
-            data, label, index = reset()
-            reuse += 1
-
+        clear()
+        print(log)
+        print(f"reuse: {reuse}")
+        print(f"{(n+1)/len(order)*100:.1f}% ({n+1}/{len(order)})")
     
     return mosaic_map, label_map, loss_map
