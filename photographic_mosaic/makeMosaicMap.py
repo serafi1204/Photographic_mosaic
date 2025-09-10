@@ -14,10 +14,17 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
 
     target = torch.from_numpy((resize(target, output_size)-128)/256); target = torch.permute(target, (2, 0, 1))
 
-    np_loaded = np.load(source)
-    data = torch.from_numpy(np_loaded['data']); data = torch.permute(data, (0, 3, 1, 2))    
-    label = np_loaded['label']
-    index = [i for i in range(label.shape[0])]
+    def reset():
+        np_loaded = np.load(source)
+        data = torch.from_numpy(np_loaded['data']); data = torch.permute(data, (0, 3, 1, 2))    
+        label = np_loaded['label']
+        index = [i for i in range(label.shape[0])]
+
+        print(f"# {len(index)} memories with hi-blueming loaded.")
+
+        return data, label, index
+
+    data, label, index = reset()
 
     mosaic_map = np.zeros(resolution)
     label_map = np.zeros(resolution)
@@ -27,6 +34,7 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
 
     # make mosaic map
     order = []
+    reuse = 0
     for x in range(resolution[0]):
         for y in range(resolution[1]):
             order.append((x, y))
@@ -44,7 +52,11 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
             index.pop(best)
             data = torch.cat((data[:best], data[best+1:]))
         
+        print(f"{(n+1)/len(order)*100:.1f}% ({n+1}/{len(order)}) | reuse: {reuse}")
+        
+        if (len(index) == 0):
+            data, label, index = reset()
+            reuse += 1
 
-        print(f"{(n+1)/len(order)*100:.1f}% ({n+1}/{len(order)})")
     
     return mosaic_map, label_map, loss_map
