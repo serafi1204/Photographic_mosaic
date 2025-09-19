@@ -1,3 +1,3 @@
 import photographic_mosaic as pm
 
-pm.makeDataset(['source', 'source_youtube'])
+pm.makeDataset(['source', 'source_youtube'], source_save=False)

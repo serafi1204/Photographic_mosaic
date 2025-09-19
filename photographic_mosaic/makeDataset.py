@@ -5,7 +5,7 @@ import os
 from .configuration import *
 from .resize import resize
 
-def makeDataset(path, dataset_filename = 'dataset.npz', source_filename = 'source.npz'):
+def makeDataset(path, dataset_filename = 'dataset.npz', source_filename = 'source.npz', source_save= True):
     label = []
     source = []
     data = []
@@ -38,6 +38,7 @@ def makeDataset(path, dataset_filename = 'dataset.npz', source_filename = 'sourc
     np_data = np.asarray(data).astype(np.float32)
 
     np.savez_compressed(dataset_filename, label=np_label, data=np_data)
-    np.savez_compressed(source_filename, data=np_source)
+    if (source_save):
+        np.savez_compressed(source_filename, data=np_source)
 
     print('Complete to generate dataset.')
