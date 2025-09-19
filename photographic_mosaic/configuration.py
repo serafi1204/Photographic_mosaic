@@ -10,5 +10,5 @@ except:
     import os
     clear_cmd = lambda : os.system('cls')
 
-MOSAIC_SIZE = (8, 15)
+MOSAIC_SIZE = (16, 30)
 SOURCE_SIZE = (512, 960) 
