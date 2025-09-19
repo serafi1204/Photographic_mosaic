@@ -5,10 +5,10 @@ from .configuration import *
 from .resize import resize
 
 
-def assamble(mosaic_map, source):
+def assamble(mosaic_map, source, gain=1):
     source = np.load(source)
     print(source.keys())
-    source = source['data']
+    source = source['data']*gain
 
     source_h, source_w = source.shape[1:3]
     mosaic_h, mosaic_w = mosaic_map.shape
