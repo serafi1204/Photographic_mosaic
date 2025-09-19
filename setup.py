@@ -14,5 +14,6 @@ setup(
         'lpips',
         'numpy',
         'opencv-python',
+        'yt-dlp'
     ]
 )

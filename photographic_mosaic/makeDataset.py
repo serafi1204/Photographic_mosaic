@@ -6,34 +6,32 @@ from .configuration import *
 from .resize import resize
 
 def makeDataset(path, dataset_filename = 'dataset.npz', source_filename = 'source.npz'):
-    tag = []
     label = []
     source = []
     data = []
 
-    for i, name in enumerate(os.listdir(path)):
-        path_source = os.path.join(path, name)
-        filelist = os.listdir(path_source)
-        
-        tag.append(name)
+    for path_sub in path:
+        for i, name in enumerate(os.listdir(path_sub)):
+            path_source = os.path.join(path_sub, name)
+            filelist = os.listdir(path_source)
 
-        print(f'Loading..."{name}"-{len(filelist)}...', end='')
-        for filename in filelist:
-            try:
-                pt = os.path.join(path_source, filename)
-        
-                img = np.array(cv2.imread(pt))
-                img_source = resize(img, SOURCE_SIZE)
-                img_resized = resize(img, MOSAIC_SIZE)
-                img_data = (img_resized - 128)/256
+            print(f'Loading..."{name}"-{len(filelist)}...', end='')
+            for filename in filelist:
+                try:
+                    pt = os.path.join(path_source, filename)
+            
+                    img = np.array(cv2.imread(pt))
+                    img_source = resize(img, SOURCE_SIZE)
+                    img_resized = resize(img, MOSAIC_SIZE)
+                    img_data = (img_resized - 128)/256
 
-                label.append(i)
-                source.append(img_source)
-                data.append(img_data)
-            except:
-                print(f"Error file: {pt}")
+                    label.append(i)
+                    source.append(img_source)
+                    data.append(img_data)
+                except:
+                    print(f"Error file: {pt}")
 
-        print("complete.")
+            print("complete.")
     
     np_label = np.asarray(label).astype(np.int8)
     np_source = np.asarray(source).astype(np.int8)

@@ -8,7 +8,7 @@ from .LPIPS import LPIPS
 from .spiral_from_center import spiral_from_center
 
 
-def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
+def makeMosaicMap(target, source, resolution, label_color=None, reuse=False, lossFunction=LPIPS):
     # init
     output_size = (MOSAIC_SIZE[0]*resolution[0], MOSAIC_SIZE[1]*resolution[1])
     dy, dx = MOSAIC_SIZE
@@ -24,7 +24,7 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False):
         return data, label, index
 
     data, label, index = reset()
-    model = LPIPS()
+    model = lossFunction()
 
     clear_cmd()
     print(f"♠♥♣◆ {len(index)} memories loaded ◆♣♥♠")
