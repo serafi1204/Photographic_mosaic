@@ -41,7 +41,7 @@ def makeMosaicMap(target, source, resolution, reuse=False, lossFunction=LPIPS, d
         return data, label, index, active_mask
 
     data, label, index, active_mask = reset()
-    model = lossFunction().to(device)
+    model = lossFunction()
 
     clear_cmd()
     print(f"♠♥♣◆ {len(index)} memories loaded ◆♣♥♠")
