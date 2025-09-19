@@ -5,63 +5,86 @@ from time import time
 from .resize import resize
 from .configuration import * 
 from .LPIPS import LPIPS
-from .spiral_from_center import spiral_from_center
 
 
-def makeMosaicMap(target, source, resolution, label_color=None, reuse=False, lossFunction=LPIPS):
-    # init
-    output_size = (MOSAIC_SIZE[0]*resolution[0], MOSAIC_SIZE[1]*resolution[1])
+def makeMosaicMap(target, source, resolution, reuse=False, lossFunction=LPIPS, device=None):
+    """
+    target : numpy array, target image
+    source : str, path to .npz file containing 'data' and 'label'
+    resolution : tuple(int, int), (rows, cols) of mosaic blocks
+    reuse : bool, if False each source patch can be used only once
+    lossFunction : callable, function/class returning a loss model
+    device : torch.device or str, 'cpu' or 'cuda'
+    """
+    # Select device
+    if device is None:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    elif isinstance(device, str):
+        device = torch.device(device)
+
+    # output size = block_size * resolution
     dy, dx = MOSAIC_SIZE
+    output_size = (dy * resolution[0], dx * resolution[1])
 
-    target = torch.from_numpy((resize(target, output_size)-128)/256); target = torch.permute(target, (2, 0, 1))
+    # prepare target tensor
+    target = torch.from_numpy((resize(target, output_size) - 128) / 256.0)
+    target = torch.permute(target, (2, 0, 1)).to(device, dtype=torch.float32)
 
+    # dataset loader
     def reset():
         np_loaded = np.load(source)
-        data = torch.from_numpy(np_loaded['data']); data = torch.permute(data, (0, 3, 1, 2))    
-        label = np_loaded['label']
-        index = [i for i in range(label.shape[0])]
+        data = torch.from_numpy(np_loaded['data'])
+        data = torch.permute(data, (0, 3, 1, 2)).to(device, dtype=torch.float32)
+        label = torch.from_numpy(np_loaded['label']).to(device)
+        index = torch.arange(label.shape[0], device=device)
+        active_mask = torch.ones_like(index, dtype=torch.bool)
+        return data, label, index, active_mask
 
-        return data, label, index
-
-    data, label, index = reset()
-    model = lossFunction()
+    data, label, index, active_mask = reset()
+    model = lossFunction().to(device)
 
     clear_cmd()
     print(f"♠♥♣◆ {len(index)} memories loaded ◆♣♥♠")
 
-    mosaic_map = np.zeros(resolution)
-    label_map = np.zeros(resolution)
-    loss_map = np.zeros(resolution)
+    # result maps
+    mosaic_map = np.zeros(resolution, dtype=np.int32)
+    label_map = np.zeros(resolution, dtype=np.int32)
+    loss_map = np.zeros(resolution, dtype=np.float32)
 
-
-    # make mosaic map
-    order = []
+    # iterate pixels
+    order = [(y, x) for y in range(resolution[0]) for x in range(resolution[1])]
     reuse_cnt = 0
     st = time()
-    
-    for x in range(resolution[0]):
-        for y in range(resolution[1]):
-            order.append((x, y))
 
-    for n, (x, y) in enumerate(order):
-        if (len(index) == 0):
-            data, label, index = reset()
+    for n, (y, x) in enumerate(order):
+        # reset if all used
+        if not active_mask.any():
+            data, label, index, active_mask = reset()
             reuse_cnt += 1
-    
-        partial_target = target[:, y:y+dy, x:x+dx]
-        best, loss = model(partial_target, data)
-        
-        i = index[best]
-        mosaic_map[x, y] = i
-        label_map[x, y] = label[i]
-        loss_map[x, y] = loss
 
-        if (not reuse):
-            index.pop(best)
-            data = torch.cat((data[:best], data[best+1:]))
-        
+        # target patch
+        partial_target = target[:, y*dy:(y+1)*dy, x*dx:(x+1)*dx]
+
+        # candidates only from active data
+        candidates = data[active_mask]
+        cand_index = index[active_mask]
+
+        # compute loss
+        best, loss = model(partial_target, candidates)
+
+        # map result
+        chosen_idx = cand_index[best].item()
+        mosaic_map[y, x] = chosen_idx
+        label_map[y, x] = label[chosen_idx].item()
+        loss_map[y, x] = loss.item() if torch.is_tensor(loss) else float(loss)
+
+        # mark as used
+        if not reuse:
+            active_mask[chosen_idx] = False
+
+        # progress
         progress = f"{(n+1)/len(order)*100:.1f}% ({n+1}/{len(order)}) | reuse: {reuse_cnt}"
         print('\r' + progress, end='', flush=True)
-    
+
     print(f"\nElapsed time: {(time()-st)/60:.1f}min")
     return mosaic_map, label_map, loss_map
