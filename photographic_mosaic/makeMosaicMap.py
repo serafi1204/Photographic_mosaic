@@ -19,7 +19,7 @@ def makeMosaicMap(target, source, resolution, reuse=False, lossFunction=LPIPS, d
     output_size = (dy * resolution[0], dx * resolution[1])
 
     # prepare target tensor
-    target = torch.from_numpy(resize(target, output_size).astype(np.float32) / 256.0)
+    target = torch.from_numpy(resize(target, output_size).astype(np.float32) / 255.0)
     target = torch.permute(target, (2, 0, 1)).to(device, dtype=torch.float32)
 
     # dataset loader
