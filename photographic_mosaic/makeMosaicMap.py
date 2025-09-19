@@ -8,14 +8,6 @@ from .LPIPS import LPIPS
 
 
 def makeMosaicMap(target, source, resolution, reuse=False, lossFunction=LPIPS, device=None):
-    """
-    target : numpy array, target image
-    source : str, path to .npz file containing 'data' and 'label'
-    resolution : tuple(int, int), (rows, cols) of mosaic blocks
-    reuse : bool, if False each source patch can be used only once
-    lossFunction : callable, function/class returning a loss model
-    device : torch.device or str, 'cpu' or 'cuda'
-    """
     # Select device
     if device is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -27,7 +19,7 @@ def makeMosaicMap(target, source, resolution, reuse=False, lossFunction=LPIPS, d
     output_size = (dy * resolution[0], dx * resolution[1])
 
     # prepare target tensor
-    target = torch.from_numpy((resize(target, output_size) - 128) / 256.0)
+    target = torch.from_numpy(resize(target, output_size).astype(np.float32) / 256.0)
     target = torch.permute(target, (2, 0, 1)).to(device, dtype=torch.float32)
 
     # dataset loader

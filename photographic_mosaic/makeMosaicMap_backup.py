@@ -13,7 +13,7 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False, los
     output_size = (MOSAIC_SIZE[0]*resolution[0], MOSAIC_SIZE[1]*resolution[1])
     dy, dx = MOSAIC_SIZE
 
-    target = torch.from_numpy((resize(target, output_size)-128)/256); target = torch.permute(target, (2, 0, 1))
+    target = torch.from_numpy((resize(target, output_size)-128)/256); #target = torch.permute(target, (2, 0, 1))
 
     def reset():
         np_loaded = np.load(source)

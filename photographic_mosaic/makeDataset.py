@@ -23,7 +23,7 @@ def makeDataset(path, dataset_filename = 'dataset.npz', source_filename = 'sourc
                     img = np.array(cv2.imread(pt))
                     img_source = resize(img, SOURCE_SIZE)
                     img_resized = resize(img, MOSAIC_SIZE)
-                    img_data = (img_resized - 128)/256
+                    img_data = img_resized.astype(np.float32) / 255.0
 
                     label.append(i)
                     source.append(img_source)
