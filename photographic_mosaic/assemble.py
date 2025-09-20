@@ -21,7 +21,7 @@ def assemble(mosaic_map, source, gain=1):
             y = j*source_w
             res[x:x+source_h, y:y+source_w] = source[int(mosaic_map[i, j])]
 
-            progress = f"{(i+mosaic_h*j)/mosaic_h*mosaic_w*100:.1f}% ({i+mosaic_h*j}/{mosaic_h*mosaic_w})"
+            progress = f"{(i+mosaic_h*j+1)/(mosaic_h*mosaic_w)*100:.1f}% ({i+mosaic_h*j+1}/{mosaic_h*mosaic_w})"
             print('\r' + progress, end='', flush=True)
     
     print()

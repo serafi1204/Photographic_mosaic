@@ -46,7 +46,7 @@ def generateMakedSource(source_file, mosaic_map, target, color_alpha=0.2, graysc
             result = cv2.cvtColor(img_lab, cv2.COLOR_LAB2BGR)
             
             # Save
-            cv2.imwrite(f'{save_path}/{i*h+j}.jpg', result)
+            cv2.imwrite(f'{save_path}/{i*h+j}.png', result)
             
             print(f'Tiling ({i}, {j})...{((i+1)*w+(j+1))/(w*h)*100:0.1f}%\r', end='')
     print()
@@ -57,8 +57,8 @@ def prepare_image_levels(num_images, LEVEL_SCALES = [0.01, 0.1, 1.0] ,force_resi
     print("--- Step 1: Checking and Resizing Images ---")
     
     for n in tqdm(range(num_images), desc="Processing images"):
-        original_path = os.path.join(INPUT_DIR, f"{n}.jpg")
-        level_max_path = os.path.join(OUTPUT_DIR, f"({n})_l{NUM_LEVELS}.jpg")
+        original_path = os.path.join(INPUT_DIR, f"{n}.png")
+        level_max_path = os.path.join(OUTPUT_DIR, f"({n})_l{NUM_LEVELS}.webp")
         
         if not force_resize and os.path.exists(level_max_path):
             continue
@@ -73,7 +73,7 @@ def prepare_image_levels(num_images, LEVEL_SCALES = [0.01, 0.1, 1.0] ,force_resi
         h, w = image.shape[:2]
         for level in range(NUM_LEVELS):
             sf = LEVEL_SCALES[level]
-            out_path = os.path.join(OUTPUT_DIR, f"({n})_l{level+1}.jpg")
+            out_path = os.path.join(OUTPUT_DIR, f"({n})_l{level+1}.webp")
             
             if level+1 == NUM_LEVELS and sf == 1.0:
                 cv2.imwrite(out_path, image, [cv2.IMWRITE_JPEG_QUALITY, 95])
@@ -98,18 +98,18 @@ def create_image_grid_html(COLS, ROWS, NUM_LEVELS, BASE_TILE_WIDTH):
     total_images_processed = 0
     for n in tqdm(range(COLS * ROWS), desc="Getting image paths"):
         image_paths[n] = {}
-        if os.path.exists(os.path.join(OUTPUT_DIR, f"({n})_l1.jpg")):
+        if os.path.exists(os.path.join(OUTPUT_DIR, f"({n})_l1.webp")):
             total_images_processed += 1
             for level in range(1, NUM_LEVELS + 1):
-                image_path = os.path.join('source', f"({n})_l{level}.jpg")
+                image_path = os.path.join('source', f"({n})_l{level}.webp")
                 # Base64 인코딩 대신 파일 경로만 저장
-                image_paths[n][f"l{level}"] = os.path.join('source', f"({n})_l{level}.jpg").replace("\\", "/")
+                image_paths[n][f"l{level}"] = os.path.join('source', f"({n})_l{level}.webp").replace("\\", "/")
 
     json_paths = json.dumps(image_paths)
     
     aspect_ratio = 16/9
     try:
-        sample_image = cv2.imread(os.path.join(INPUT_DIR, '(0).jpg'))
+        sample_image = cv2.imread(os.path.join(INPUT_DIR, '(0).png'))
         if sample_image is not None:
             h, w, _ = sample_image.shape
             aspect_ratio = w/h
