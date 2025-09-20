@@ -33,8 +33,8 @@ def generateMakedSource(source_file, mosaic_map, target, color_alpha=0.2, graysc
             partial_target = target[i*sw:(i+1)*sw, j*sh:(j+1)*sh]
 
             # BGR to LAB
-            img_lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
-            partial_target_lab = cv2.cvtColor(partial_target, cv2.COLOR_BGR2LAB)
+            img_lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB).astype(np.uint8)
+            partial_target_lab = cv2.cvtColor(partial_target, cv2.COLOR_BGR2LAB).astype(np.uint8)
 
             # grayscale
             img_lab[:,:,0] = (img_lab[:,:,0] * (1 - grayscale_alpha) + partial_target_lab[:,:,0] * grayscale_alpha).astype(np.uint8)
