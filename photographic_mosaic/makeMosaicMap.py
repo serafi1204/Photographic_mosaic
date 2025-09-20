@@ -7,7 +7,7 @@ from .configuration import *
 from .LPIPS import LPIPS
 
 
-def makeMosaicMap(target, source, resolution, reuse=False, lossFunction=LPIPS, device=None):
+def makeMosaicMap(target, source, resolution, reuse=False, lossFunction=LPIPS, device=None, color=None):
     # Select device
     if device is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -40,7 +40,7 @@ def makeMosaicMap(target, source, resolution, reuse=False, lossFunction=LPIPS, d
 
     # result maps
     mosaic_map = np.zeros(resolution, dtype=np.int32)
-    label_map = np.zeros(resolution, dtype=np.int32)
+    label_map = np.zeros(resolution, dtype=np.int32) if (color  is None) else np.zeros((*resolution, 3), dtype=np.uint8)
     loss_map = np.zeros(resolution, dtype=np.float32)
 
     # iterate pixels
@@ -67,7 +67,7 @@ def makeMosaicMap(target, source, resolution, reuse=False, lossFunction=LPIPS, d
         # map result
         chosen_idx = cand_index[best].item()
         mosaic_map[y, x] = chosen_idx
-        label_map[y, x] = label[chosen_idx].item()
+        label_map[y, x] = label[chosen_idx].item() if (color is None) else color[int(label[chosen_idx].item())]
         loss_map[y, x] = loss.item() if torch.is_tensor(loss) else float(loss)
 
         # mark as used
