@@ -360,4 +360,4 @@ def generatePhotographicMosaic(source_file, mosaic_map, target, color_alpha=0.1,
     create_image_grid_html(w, h, len(LEVEL_SCALES), BASE_TILE_WIDTH)
     zip()
 
-    return OUTPUT_PATH
+    return OUTPUT_ZIP
