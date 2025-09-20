@@ -24,12 +24,12 @@ def generateMakedSource(source_file, mosaic_map, target, color_alpha=0.2, graysc
     sn, sw, sh, sch = sc.shape
 
     # resize target
-    target = cv2.resize(target, (h*sh, w*sw)).astype(np.uint8)
+    target = cv2.resize(target, (h*sh, w*sw))
 
     # generate
     for i in range(w): 
         for j in range(h):
-            img = sc[mosaic_map[i, j]].astype(np.uint8, copy=False)
+            img = sc[int(mosaic_map[i, j])]
             partial_target = target[i*sw:(i+1)*sw, j*sh:(j+1)*sh]
 
             # BGR to LAB
