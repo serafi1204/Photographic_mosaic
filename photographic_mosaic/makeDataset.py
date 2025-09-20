@@ -1,6 +1,9 @@
 import numpy as np
 import cv2
 import os 
+import h5py
+import numpy as np
+
 
 from .configuration import *
 from .resize import resize
@@ -39,6 +42,7 @@ def makeDataset(path, dataset_filename = 'dataset.npz', source_filename = 'sourc
 
     np.savez_compressed(dataset_filename, label=np_label, data=np_data)
     if (source_save):
-        np.savez_compressed(source_filename, data=np_source)
+        with h5py.File("source.h5", "w") as f:
+            f.create_dataset("data", data=np_source, compression="gzip", chunks=True)
 
     print('Complete to generate dataset.')

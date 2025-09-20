@@ -4,6 +4,7 @@ import os
 import json
 from tqdm import tqdm
 import zipfile
+import h5py
 
 INPUT_DIR = "source_originals"
 OUTPUT_PATH = 'photographic_mosaic'
@@ -14,7 +15,8 @@ OUTPUT_ZIP = 'photographic_mosaic.zip'
 
 def generateMakedSource(source_file, mosaic_map, target, color_alpha=0.2, grayscale_alpha=0.5, save_path=INPUT_DIR):
     # load source
-    sc = np.load(source_file, mmap_mode="r")['data']
+    f = h5py.File(source_file, "r")
+    sc = f["data"]
 
 
     # get size
@@ -27,7 +29,7 @@ def generateMakedSource(source_file, mosaic_map, target, color_alpha=0.2, graysc
     # generate
     for i in range(w): 
         for j in range(h):
-            img = sc[mosaic_map[i, j]].astype(np.uint8)
+            img = sc[mosaic_map[i, j]].astype(np.uint8, copy=False)
             partial_target = target[i*sw:(i+1)*sw, j*sh:(j+1)*sh]
 
             # BGR to LAB
