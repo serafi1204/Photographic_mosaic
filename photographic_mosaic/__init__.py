@@ -5,3 +5,4 @@ from .resize import resize
 from .assemble import assemble
 from .getYoutubeScreenshot import getYoutubeScreenshot
 from .getYoutubePlaylist import getYoutubePlaylist
+from .generatePhotographicMosaic import generatePhotographicMosaic
