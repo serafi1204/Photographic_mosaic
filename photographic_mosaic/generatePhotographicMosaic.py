@@ -29,13 +29,12 @@ def generateMakedSource(source_file, mosaic_map, target, color_alpha=0.2, graysc
     # generate
     for i in range(w): 
         for j in range(h):
-            img = sc[int(mosaic_map[i, j])]
-            partial_target = target[i*sw:(i+1)*sw, j*sh:(j+1)*sh]
+            img = sc[int(mosaic_map[i, j])].astype(np.uint8)
+            partial_target = target[i*sw:(i+1)*sw, j*sh:(j+1)*sh].astype(np.uint8)
 
             # BGR to LAB
-            img_lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB).astype(np.uint8)
-            partial_target_lab = cv2.cvtColor(partial_target, cv2.COLOR_BGR2LAB).astype(np.uint8)
-
+            img_lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+            partial_target_lab = cv2.cvtColor(partial_target, cv2.COLOR_BGR2LAB)
             # grayscale
             img_lab[:,:,0] = (img_lab[:,:,0] * (1 - grayscale_alpha) + partial_target_lab[:,:,0] * grayscale_alpha).astype(np.uint8)
 
