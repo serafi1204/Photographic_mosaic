@@ -48,7 +48,7 @@ def generateMakedSource(source_file, mosaic_map, target, color_alpha=0.2, graysc
             # Save
             cv2.imwrite(f'{save_path}/{i*h+j}.png', result)
             
-            print(f'Tiling ({i}, {j})...{((i+1)*w+(j+1))/(w*h)*100:0.1f}%\r', end='')
+            print(f'\rTiling ({i}, {j})...{((i+1)*w+(j+1))/(w*h)*100:0.1f}%', end='', flush=True)
     print()
 
 def prepare_image_levels(num_images, LEVEL_SCALES = [0.01, 0.1, 1.0] ,force_resize=True):
