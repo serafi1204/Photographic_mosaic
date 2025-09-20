@@ -36,6 +36,7 @@ def generateMakedSource(source_file, mosaic_map, target, color_alpha=0.2, graysc
             for j in range(h):
                 index = int(mosaic_map[i, j])
                 if not (chunk_s <= index < chunk_e): continue
+                cnt += 1
 
                 img = chunk[index-chunk_s].astype(np.uint8)
                 partial_target = target[i*sw:(i+1)*sw, j*sh:(j+1)*sh].astype(np.uint8)
@@ -56,7 +57,7 @@ def generateMakedSource(source_file, mosaic_map, target, color_alpha=0.2, graysc
                 # Save
                 cv2.imwrite(f'{save_path}/{i*h+j}.png', result)
                 
-                print(f'\rTiling ({i}, {j})...{((i+1)*w+(j+1))/(w*h)*100:0.1f}%', end='', flush=True)
+                print(f'\rTiling...{(cnt)/(w*h)*100:0.1f}%', end='', flush=True)
     print()
 
 def prepare_image_levels(num_images, LEVEL_SCALES = [0.01, 0.1, 1.0] ,force_resize=True):
