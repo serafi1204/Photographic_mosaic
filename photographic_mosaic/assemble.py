@@ -7,7 +7,6 @@ from .resize import resize
 
 def assemble(mosaic_map, source, gain=1):
     source = np.load(source)
-    print(source.keys())
     source = source['data']*gain
 
     source_h, source_w = source.shape[1:3]
