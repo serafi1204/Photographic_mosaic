@@ -353,7 +353,7 @@ def zip():
 
     zip_file.close()
 
-def generatePhotographicMosaic(source_file, mosaic_map, target, color_alpha=0.1, grayscale_alpha=0.2, LEVEL_SCALES = [0.01, 0.1, 1.0], BASE_TILE_WIDTH=720):
+def generatePhotographicMosaic(source_file, mosaic_map, target, color_alpha=0.1, grayscale_alpha=0.2, LEVEL_SCALES = [0.01, 0.1, 1.0], BASE_TILE_WIDTH=720, chunk_size=100):
     if not os.path.exists(OUTPUT_PATH):
         os.makedirs(OUTPUT_PATH)
     if not os.path.exists(OUTPUT_DIR):
@@ -364,7 +364,7 @@ def generatePhotographicMosaic(source_file, mosaic_map, target, color_alpha=0.1,
     w, h = mosaic_map.shape
     num_images = w*h
 
-    generateMakedSource(source_file, mosaic_map, target, color_alpha=color_alpha, grayscale_alpha=grayscale_alpha)
+    generateMakedSource(source_file, mosaic_map, target, color_alpha=color_alpha, grayscale_alpha=grayscale_alpha, chunk_size=chunk_size)
     prepare_image_levels(num_images, LEVEL_SCALES)
     create_image_grid_html(w, h, len(LEVEL_SCALES), BASE_TILE_WIDTH)
     zip()
