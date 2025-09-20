@@ -13,7 +13,7 @@ OUTPUT_FILE = OUTPUT_PATH + '/photographic_mosaic.html'
 OUTPUT_ZIP = 'photographic_mosaic.zip'
 
 
-def generateMakedSource(source_file, mosaic_map, target, color_alpha=0.2, grayscale_alpha=0.5, save_path=INPUT_DIR):
+def generateMakedSource(source_file, mosaic_map, target, color_alpha=0.2, grayscale_alpha=0.5, save_path=INPUT_DIR, chunk_size=100):
     # load source
     f = h5py.File(source_file, "r")
     sc = f["data"]
@@ -27,28 +27,36 @@ def generateMakedSource(source_file, mosaic_map, target, color_alpha=0.2, graysc
     target = cv2.resize(target, (h*sh, w*sw))
 
     # generate
-    for i in range(w): 
-        for j in range(h):
-            img = sc[int(mosaic_map[i, j])].astype(np.uint8)
-            partial_target = target[i*sw:(i+1)*sw, j*sh:(j+1)*sh].astype(np.uint8)
+    cnt = 0
+    for chunk_s in range(0, w*h, chunk_size):
+        chunk_e = min(chunk_s+chunk_size, w*h)
+        chunk = sc[chunk_s:chunk_e]
 
-            # BGR to LAB
-            img_lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
-            partial_target_lab = cv2.cvtColor(partial_target, cv2.COLOR_BGR2LAB)
-            # grayscale
-            img_lab[:,:,0] = (img_lab[:,:,0] * (1 - grayscale_alpha) + partial_target_lab[:,:,0] * grayscale_alpha).astype(np.uint8)
+        for i in range(w): 
+            for j in range(h):
+                index = int(mosaic_map[i, j])
+                if not (chunk_s <= index < chunk_e): continue
 
-            # color
-            img_lab[:,:,1] = (img_lab[:,:,1] * (1 - color_alpha) + partial_target_lab[:,:,1] * color_alpha).astype(np.uint8)
-            img_lab[:,:,2] = (img_lab[:,:,2] * (1 - color_alpha) + partial_target_lab[:,:,2] * color_alpha).astype(np.uint8)
+                img = chunk[index-chunk_s].astype(np.uint8)
+                partial_target = target[i*sw:(i+1)*sw, j*sh:(j+1)*sh].astype(np.uint8)
 
-            # LAB to BGR
-            result = cv2.cvtColor(img_lab, cv2.COLOR_LAB2BGR)
-            
-            # Save
-            cv2.imwrite(f'{save_path}/{i*h+j}.png', result)
-            
-            print(f'\rTiling ({i}, {j})...{((i+1)*w+(j+1))/(w*h)*100:0.1f}%', end='', flush=True)
+                # BGR to LAB
+                img_lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+                partial_target_lab = cv2.cvtColor(partial_target, cv2.COLOR_BGR2LAB)
+                # grayscale
+                img_lab[:,:,0] = (img_lab[:,:,0] * (1 - grayscale_alpha) + partial_target_lab[:,:,0] * grayscale_alpha).astype(np.uint8)
+
+                # color
+                img_lab[:,:,1] = (img_lab[:,:,1] * (1 - color_alpha) + partial_target_lab[:,:,1] * color_alpha).astype(np.uint8)
+                img_lab[:,:,2] = (img_lab[:,:,2] * (1 - color_alpha) + partial_target_lab[:,:,2] * color_alpha).astype(np.uint8)
+
+                # LAB to BGR
+                result = cv2.cvtColor(img_lab, cv2.COLOR_LAB2BGR)
+                
+                # Save
+                cv2.imwrite(f'{save_path}/{i*h+j}.png', result)
+                
+                print(f'\rTiling ({i}, {j})...{((i+1)*w+(j+1))/(w*h)*100:0.1f}%', end='', flush=True)
     print()
 
 def prepare_image_levels(num_images, LEVEL_SCALES = [0.01, 0.1, 1.0] ,force_resize=True):
