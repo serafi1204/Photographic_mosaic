@@ -14,7 +14,7 @@ OUTPUT_ZIP = 'photographic_mosaic.zip'
 
 def generateMakedSource(source_file, mosaic_map, target, color_alpha=0.2, grayscale_alpha=0.5, save_path=INPUT_DIR):
     # load source
-    sc = np.load(source_file)['data'].astype(np.uint8)
+    sc = np.load(source_file, mmap_mode="r")['data']
 
 
     # get size
@@ -27,7 +27,7 @@ def generateMakedSource(source_file, mosaic_map, target, color_alpha=0.2, graysc
     # generate
     for i in range(w): 
         for j in range(h):
-            img = sc[mosaic_map[i, j]]
+            img = sc[mosaic_map[i, j]].astype(np.uint8)
             partial_target = target[i*sw:(i+1)*sw, j*sh:(j+1)*sh]
 
             # BGR to LAB
