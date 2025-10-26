@@ -1,4 +1,5 @@
 import yt_dlp
+from yt_dlp.utils import DownloadError
 import cv2
 import os
 
@@ -6,13 +7,19 @@ def getYoutubeScreenshot(url, output_dir='', tag='youtube_screenshot', N = 10):
     ydl_opts = {
         'format': 'best',
         'quiet': True,
+        'cookiesfrombrowser': ('chrome',),
+        'extractor_args': {'youtube': {'player_client': ['tv_embedded']}},
     }
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info_dict = ydl.extract_info(url, download=False)
-        video_url = info_dict['url']
-        duration = info_dict['duration']
-        video_id = info_dict['id']  # YouTube 고유 ID
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info_dict = ydl.extract_info(url, download=False)
+            video_url = info_dict['url']
+            duration = info_dict['duration']
+            video_id = info_dict['id']  # YouTube 고유 ID
+    except DownloadError:
+        print(f"\n[yt_dlp] Error processing video: {url}. Skipping.")
+        return
 
     interval = duration / (N+1)
 

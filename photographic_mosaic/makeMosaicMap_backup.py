@@ -8,7 +8,7 @@ from .LPIPS import LPIPS
 from .spiral_from_center import spiral_from_center
 
 
-def makeMosaicMap(target, source, resolution, label_color=None, reuse=False, lossFunction=LPIPS):
+def makeMosaicMap(target, source, resolution, label_color=None, reuse=False, lossFunction=LPIPS, label_target=None):
     # init
     output_size = (MOSAIC_SIZE[0]*resolution[0], MOSAIC_SIZE[1]*resolution[1])
     dy, dx = MOSAIC_SIZE
@@ -20,6 +20,13 @@ def makeMosaicMap(target, source, resolution, label_color=None, reuse=False, los
         data = torch.from_numpy(np_loaded['data']); data = torch.permute(data, (0, 3, 1, 2))    
         label = np_loaded['label']
         index = [i for i in range(label.shape[0])]
+        
+        if (label_target is not None):
+            data = torch.from_numpy(np.asarray([data[i] for i in label if i in label_target]))
+            label = [i for i in label if i in label_target]
+            index = [i for i in range(label.shape[0])]
+        
+        label = []
 
         return data, label, index
 
