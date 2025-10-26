@@ -7,7 +7,7 @@ from .configuration import *
 from .LPIPS import LPIPS
 
 
-def makeMosaicMap(target, source, resolution, reuse=False, lossFunction=LPIPS, device=None, color=None):
+def makeMosaicMap(target, source, resolution, reuse=False, lossFunction=LPIPS, device=None, color=None, label_target=None):
     # Select device
     if device is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -28,6 +28,11 @@ def makeMosaicMap(target, source, resolution, reuse=False, lossFunction=LPIPS, d
         data = torch.from_numpy(np_loaded['data'])
         data = torch.permute(data, (0, 3, 1, 2)).to(device, dtype=torch.float32)
         label = torch.from_numpy(np_loaded['label']).to(device)
+        
+        if (label_target is not None):
+            data = torch.from_numpy(np.asarray([data[i] for i in label if i in label_target]))
+            label = [i for i in label if i in label_target]
+            
         index = torch.arange(label.shape[0], device=device)
         active_mask = torch.ones_like(index, dtype=torch.bool)
         return data, label, index, active_mask
