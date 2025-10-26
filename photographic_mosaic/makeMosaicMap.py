@@ -31,7 +31,7 @@ def makeMosaicMap(target, source, resolution, reuse=False, lossFunction=LPIPS, d
         
         if (label_target is not None):
             data = torch.from_numpy(np.asarray([data[i] for i in label if i in label_target]))
-            label = torch.from_numpy([i for i in label if i in label_target])
+            label = torch.from_numpy(np.asarray([i for i in label if i in label_target]))
 
         data = data.to(device, dtype=torch.float32)
         label = label.to(device)
