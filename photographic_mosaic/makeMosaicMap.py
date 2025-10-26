@@ -26,13 +26,16 @@ def makeMosaicMap(target, source, resolution, reuse=False, lossFunction=LPIPS, d
     def reset():
         np_loaded = np.load(source)
         data = torch.from_numpy(np_loaded['data'])
-        data = torch.permute(data, (0, 3, 1, 2)).to(device, dtype=torch.float32)
-        label = torch.from_numpy(np_loaded['label']).to(device)
+        data = torch.permute(data, (0, 3, 1, 2))
+        label = torch.from_numpy(np_loaded['label'])
         
         if (label_target is not None):
             data = torch.from_numpy(np.asarray([data[i] for i in label if i in label_target]))
             label = [i for i in label if i in label_target]
-            
+
+        data = data.to(device, dtype=torch.float32)
+        label = label.to(device)
+
         index = torch.arange(label.shape[0], device=device)
         active_mask = torch.ones_like(index, dtype=torch.bool)
         return data, label, index, active_mask
