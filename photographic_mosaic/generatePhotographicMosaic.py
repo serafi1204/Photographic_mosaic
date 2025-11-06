@@ -28,8 +28,8 @@ def generateMakedSource(source_file, mosaic_map, target, color_alpha=0.2, graysc
 
     # generate
     cnt = 0
-    for chunk_s in range(0, w*h, chunk_size):
-        chunk_e = min(chunk_s+chunk_size, w*h)
+    for chunk_s in range(0, sn+chunk_size, chunk_size):
+        chunk_e = min(chunk_s+chunk_size, sn)
         chunk = sc[chunk_s:chunk_e]
 
         for i in range(w): 
